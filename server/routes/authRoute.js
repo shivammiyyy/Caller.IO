@@ -4,7 +4,7 @@ import { isLogin } from '../middlewares/isLogin.js';
 
 const authRoute = express.Router();
 
-authRoute.post('login',Login);
+authRoute.post('/login',Login);
 authRoute.post('/signup',SignUp);
 authRoute.post('/logout',isLogin,LogOut);
 

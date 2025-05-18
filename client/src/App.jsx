@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Auth from "./pages/auth/Auth";
 import {Dashboard} from "./pages/Dashboard/Dashboard";
 import UserContext from "./context/userContextApi";
@@ -11,15 +11,14 @@ const App = () => {
     <Router>
       <Routes>
         {/* if logged in → Dashboard, else redirect to /login */}
-        {/* <Route
+        <Route
           path="/"
           element={
             isLoggedIn
-              ? <Dashboard />
+               ?<Dashboard />
               : <Navigate to="/login" replace />
           }
-        /> */}
-        <Route path='/' element={<Dashboard/>}/>
+        />
 
         {/* public routes */}
         <Route path="/login" element={<Auth type="login" />} />

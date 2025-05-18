@@ -1,7 +1,7 @@
 // src/utils/axios.js
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 // Create an instance of Axios
 const apiClient = axios.create({
@@ -12,8 +12,10 @@ const apiClient = axios.create({
 // Optionally, you can add request and response interceptors
 apiClient.interceptors.request.use(
   (config) => {
-    // You can add authorization headers or other configurations here
-    // config.headers['Authorization'] = `Bearer ${yourToken}`;
+    const token = localStorage.getItem('jwt');       // or: get it from your React state
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
     return config;
   },
   (error) => {
