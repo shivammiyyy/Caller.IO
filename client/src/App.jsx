@@ -1,34 +1,107 @@
-import React, { useContext } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Auth from "./pages/auth/Auth";
-import {Dashboard} from "./pages/Dashboard/Dashboard";
-import UserContext from "./context/userContextApi";
+import { Navigate, Route, Routes } from "react-router";
 
+import { Toaster } from "react-hot-toast";
+import useAuthUser from "./hooks/useAuthUser.js";
+import { useThemeStore } from "./store/useThemeStore.js";
+import PageLoader from "./components/PageLoader.jsx";
+import Layout from "./components/Layout.jsx";
+import SignUpPage from "./pages/SignupPage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import NotificationsPage from "./pages/NotificationsPage.jsx";
+import CallPage from "./pages/CallPage.jsx";
+import ChatPage from "./pages/ChatPage.jsx";
+import OnboardingPage from "./pages/OnboardingPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
 const App = () => {
-  const { isLoggedIn } = useContext(UserContext);
+  const { isLoading, authUser } = useAuthUser();
+  const { theme } = useThemeStore();
+
+  const isAuthenticated = Boolean(authUser);
+  const isOnboarded = authUser?.isOnboarded;
+
+  if (isLoading) return <PageLoader />;
 
   return (
-    <Router>
+    <div className="h-screen" data-theme={theme}>
       <Routes>
-        {/* if logged in → Dashboard, else redirect to /login */}
         <Route
           path="/"
           element={
-            isLoggedIn
-               ?<Dashboard />
-              : <Navigate to="/login" replace />
+            isAuthenticated && isOnboarded ? (
+              <Layout showSidebar={true}>
+                <HomePage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            !isAuthenticated ? <SignUpPage /> : <Navigate to={isOnboarded ? "/" : "/onboarding"} />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            !isAuthenticated ? <LoginPage /> : <Navigate to={isOnboarded ? "/" : "/onboarding"} />
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <Layout showSidebar={true}>
+                <NotificationsPage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
+        />
+        <Route
+          path="/call/:id"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <CallPage />
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
           }
         />
 
-        {/* public routes */}
-        <Route path="/login" element={<Auth type="login" />} />
-        <Route path="/signup" element={<Auth type="signup" />} />
+        <Route
+          path="/chat/:id"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <Layout showSidebar={false}>
+                <ChatPage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
+        />
 
-        {/* catch‐all: redirect unknown paths */}
-        <Route path="*" element={<Navigate to={isLoggedIn ? "/" : "/login"} replace />} />
+        <Route
+          path="/onboarding"
+          element={
+            isAuthenticated ? (
+              !isOnboarded ? (
+                <OnboardingPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
       </Routes>
-    </Router>
+
+      <Toaster />
+    </div>
   );
 };
-
 export default App;

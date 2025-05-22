@@ -1,11 +1,26 @@
-import express from 'express';
-import { isLogin } from '../middlewares/isLogin.js';
-import { getAllUsers, getUserById, getUserByUsernameOrEmail } from '../controllers/userController.js';
+import express from "express";
+import { protectRoute } from "../middlewares/isLogin.js"
+import {
+  acceptFriendRequest,
+  getFriendRequests,
+  getMyFriends,
+  getOutgoingFriendReqs,
+  getRecommendedUsers,
+  sendFriendRequest,
+} from "../controllers/userController.js";
 
-const userRoute = express.Router();
+const router = express.Router();
 
-userRoute.get('/',isLogin,getAllUsers);
-userRoute.get('/search',getUserByUsernameOrEmail);
-userRoute.get('/:id',getUserById)
+// apply auth middleware to all routes
+router.use(protectRoute);
 
-export default userRoute;
+router.get("/", getRecommendedUsers);
+router.get("/friends", getMyFriends);
+
+router.post("/friend-request/:id", sendFriendRequest);
+router.put("/friend-request/:id/accept", acceptFriendRequest);
+
+router.get("/friend-requests", getFriendRequests);
+router.get("/outgoing-friend-requests", getOutgoingFriendReqs);
+
+export default router;
